@@ -1,0 +1,8 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1> ファイル選択 </h1>
+<form  method="post" enctype="multipart/form-data">
+  <input type="file" value="ファイルを選択" name="file">
+  <input type="submit" value="送信">
+</form>
+{% endblock %}
