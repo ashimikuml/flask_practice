@@ -2,6 +2,8 @@
 <html>
 <head>
   <title>Flask Practice</title>
+  {% block head %}
+  {% endblock %}
 </head>
 <body>
 {% with messages = get_flashed_messages() %}

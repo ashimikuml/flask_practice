@@ -1,8 +1,15 @@
 {% extends "layout.html" %}
+{% block head %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+{% endblock %}
 {% block body %}
 <h1> ファイル選択 </h1>
 <form  method="post" enctype="multipart/form-data">
-  <input type="file" value="ファイルを選択" name="file">
+  <input type="file" value="ファイルを選択" name="file" accept="image/*">
   <input type="submit" value="送信">
 </form>
+<div id="droppable" style="border: gray solid 1em; padding: 2em;">
+    ファイルをドロップしてください。
+</div>
+<script type="text/javascript" src="{{ url_for('static', filename='drop.js') }}"></script>
 {% endblock %}
