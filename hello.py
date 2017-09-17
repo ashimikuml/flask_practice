@@ -1,12 +1,14 @@
 import os
+from time import sleep
+from multiprocessing import Process
 
-from flask import Flask, request, flash, redirect, render_template, url_for, send_from_directory
+import flask
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
-app = Flask(__name__)
+app = flask.Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = os.urandom(24)
 
@@ -15,37 +17,50 @@ app.secret_key = os.urandom(24)
 def index():
     return "Hello, World!"
 
-
+# アップロード
 @app.route("/upload", methods=["GET", "POST"])
 def upload():
     def allowed_file(filename):
         return '.' in filename and \
                filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-    if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
+    if flask.request.method == 'POST':
+        # check if the post flask.request has the file part
+        if 'file' not in flask.request.files:
+            flask.flash('No file part')
+            return flask.redirect(flask.request.url)
 
-        file = request.files['file']
+        file = flask.request.files['file']
         # if user does not select file, browser also
         # submit a empty part without filename
         if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
+            flask.flash('No selected file')
+            return flask.redirect(flask.request.url)
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded_file', filename=filename))
+            return flask.redirect(flask.url_for('uploaded_file', filename=filename))
 
-    return render_template("upload.html")
+    return flask.render_template("upload.html")
 
 
 @app.route('/upload/<filename>')
 def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return flask.send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+@app.route("/message/<msg>")
+def message(msg):
+    def save_message(msg):
+        sleep(5)
+        with open("message.txt", "w") as fout:
+            fout.write(msg)
+
+    # 別プロセスで実行 レスポンスを待たなくていい
+    p = Process(target=save_message, args=(msg,))
+    p.start()
+    return msg
 
 
 if __name__ == '__main__':
